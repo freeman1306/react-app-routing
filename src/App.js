@@ -1,19 +1,50 @@
 import React from "react";
-
+import Context from './context'
 import TodoList from "./todoComponents/TodoList";
+import AddTodo from "./todoComponents/AddTodo";
 
 function App() {
-  const todos = [
+const [todos, setTodos] = React.useState([
     {id: 1, completed: false, title: 'купить хлеб'},
     {id: 2, completed: false, title: 'купить масло'},
     {id: 3, completed: false, title: 'купить молоко'}
-  ]
-  return (
-    <div className="wrapper">
-      <h1>Header</h1>
+  ])
 
-      <TodoList todos={todos}/>
+
+  function toggleTodo(id) {
+    setTodos(todos.map(todo => {
+      if (todo.id === 1) {
+       todo.completed = !todo.completed
+      }
+      
+      return todo
+   }) )
+    
+  }
+
+  function removeTodo(id) {
+    setTodos(todos.filter((todo) => todo.id !== id))
+  }
+
+  function addTodo(title) {
+    setTodos(
+      todos.concat([{
+        title,
+        id: Date.now(),
+        completed: false
+      }])
+    )
+  }
+  return (
+    <Context.Provider value={{removeTodo}}>
+    <div className="wrapper">
+        <h1>Todo List</h1>
+        <AddTodo onCreate={addTodo} />
+
+        {todos.length ?  <TodoList todos={todos} onToggle={toggleTodo}/>: <p>No todos!</p> }
+     
     </div>
+   </Context.Provider>
   );
 }
 
