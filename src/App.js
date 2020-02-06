@@ -1,75 +1,38 @@
-import React, {useEffect} from "react";
-import Context from './context'
-import TodoList from "./todoComponents/TodoList";
-import Loader from './Loader'
-import Modal from "./Modal/Modal";
+import React, { Component } from 'react';
 
-const AddTodo = React.lazy(() => new Promise(resolve =>{
-  setTimeout(() => {
-    resolve(import("./todoComponents/AddTodo"))
-  }, 3000)
-}))
+// material-ui components
+import Grid from 'material-ui/Grid';
 
-function App() {
-  const [todos, setTodos] = React.useState([])
-  const [loading, setLoading] = React.useState(true)
+// react-router-dom
+import {
+  BrowserRouter as Router,
+  Route,
+  Switch
+} from 'react-router-dom';
 
-  useEffect(() => {
-    fetch('https://jsonplaceholder.typicode.com/todos?_limit=5')
-     .then(response => response.json())
-      .then(todos => {
-        setTimeout(() => {
-          setTodos(todos)
-          setLoading(false)
-        }, 2000)
-      
-     })
-  }, [])
+// pages
+import Home from './pages/Home';
+import EditTodo from './pages/EditTodo';
+import NotFound from './pages/NotFound';
+import CreatePost from './pages/CreatePost';
 
-  function toggleTodo(id) {
-    setTodos(todos.map(todo => {
-      if (todo.id === 1) {
-       todo.completed = !todo.completed
-      }
-      
-      return todo
-   }) )
-    
+class App extends Component {
+  render() {
+    return (
+      <Router>
+        <div style={{ padding: 8 }}>
+          <Grid container spacing={16} justify="center">
+            <Switch>
+              <Route exact path="/" component={Home} />
+              <Route path="/edit/:id" component={EditTodo} />
+              <Route path="/create" component={CreatePost} />
+              <Route component={NotFound} />
+            </Switch>
+          </Grid>
+        </div>
+      </Router >
+    );
   }
-
-  function removeTodo(id) {
-    setTodos(todos.filter((todo) => todo.id !== id))
-  }
-
-  function addTodo(title) {
-    setTodos(
-      todos.concat([{
-        title,
-        id: Date.now(),
-        completed: false
-      }])
-    )
-  }
-  return (
-    <Context.Provider value={{removeTodo}}>
-    <div className="wrapper">
-        <h1>Todo List</h1>
-
-        <Modal/>
-        <React.Suspense fallback={<p>Loading....</p>}>
-          
-<AddTodo onCreate ={addTodo}/>
-      </React.Suspense>
-
-        {loading && <Loader/>}
-
-        {todos.length ? <TodoList todos={todos} onToggle={toggleTodo} /> : (
-          loading ? null : <p>No Todos!</p>
-        )}
-     
-    </div>
-   </Context.Provider>
-  );
 }
 
 export default App;
