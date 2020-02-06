@@ -1,28 +1,38 @@
 import React, { Component } from "react";
-
-import uniqueId from "lodash/uniqueId";
 // material-ui components
 import Grid from "material-ui/Grid";
 import Typography from "material-ui/Typography";
 import Paper from "material-ui/Paper";
 import TextField from "material-ui/TextField";
 import IconButton from "material-ui/IconButton";
-import AddIcon from "material-ui-icons/Add";
+import EditIcon from "material-ui-icons/Edit";
 // react redux
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { withRouter } from "react-router";
-
 // action creators
 import { actions as postActions } from "../reducers/post";
+import { editPost } from "../api/post";
 
-class CreatePost extends Component {
+class EditTodo extends Component {
   state = {
     item: {
       title: "",
       body: ""
     }
   };
+
+  // get active item by ID from router (match.params.id)
+  componentDidMount() {
+    const { match, post } = this.props;
+    const item = post.items.find(
+      item => item.id === parseInt(match.params.id, 10)
+    ) || {
+      title: "",
+      body: ""
+    };
+
+    this.setState({ item });
+  }
 
   // handle change active item data
   handleChange = name => e => {
@@ -41,21 +51,12 @@ class CreatePost extends Component {
     const { item } = this.state;
     if (item.title && item.body) {
       const { postActions } = this.props;
-
-      postActions.create({
-        id: uniqueId(),
-        title: item.title,
-        body: item.body
-      });
-
-      this.setState({
-        item: {
-          title: "",
-          body: ""
-        }
-      });
-
-      this.goBack();
+      editPost(item)
+        .then(() => {
+          postActions.update(item);
+          this.goBack();
+        })
+        .catch(error => console.log(error));
     }
   };
 
@@ -71,7 +72,7 @@ class CreatePost extends Component {
     return (
       <Grid item xs={12} sm={6}>
         <Typography align="center" type="display3">
-          Create post
+          Edit Post
         </Typography>
         <Paper style={{ paddingLeft: 16, paddingRight: 16 }}>
           <form onSubmit={this.handleSubmit}>
@@ -84,20 +85,18 @@ class CreatePost extends Component {
               autoComplete="off"
               autoFocus={true}
             />
-
             <TextField
-              multiline
               label="Description"
               onChange={this.handleChange("body")}
               fullWidth
+              multiline
               margin="normal"
               value={item.body}
               autoComplete="off"
               autoFocus={false}
             />
-
-            <IconButton aria-label="Create" onClick={this.handleSubmit}>
-              <AddIcon />
+            <IconButton aria-label="Edit" onClick={this.handleSubmit}>
+              <EditIcon />
             </IconButton>
           </form>
         </Paper>
@@ -106,8 +105,9 @@ class CreatePost extends Component {
   }
 }
 
+const mapStateToProps = ({ post }) => ({ post });
 const mapDispatchToProps = dispatch => ({
   postActions: bindActionCreators(postActions, dispatch)
 });
 
-export default connect(null, mapDispatchToProps)(withRouter(CreatePost));
+export default connect(mapStateToProps, mapDispatchToProps)(EditTodo);

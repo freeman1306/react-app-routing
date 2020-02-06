@@ -1,48 +1,34 @@
 import React, { Component } from "react";
-
 // material-ui components
 import Grid from "material-ui/Grid";
 import Typography from "material-ui/Typography";
 import Paper from "material-ui/Paper";
-import TextField from "material-ui/TextField";
-import List, { ListItem, ListItemSecondaryAction, ListItemText } from "material-ui/List";
-import Checkbox from "material-ui/Checkbox";
+import List, {
+  ListItem,
+  ListItemSecondaryAction,
+  ListItemText
+} from "material-ui/List";
 import IconButton from "material-ui/IconButton";
 import DeleteIcon from "material-ui-icons/Delete";
 import EditIcon from "material-ui-icons/Edit";
-import { MenuItem } from "material-ui/Menu";
-import { FormControl } from "material-ui/Form";
-import Select from "material-ui/Select";
+import AddIcon from "material-ui-icons/Add";
 
 // react redux
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
 // action creators
-import { actions as todoActions } from "../reducers/todo";
-
-//lodash
-import uniqueId from "lodash/uniqueId";
+import { actions as postActions } from "../reducers/post";
+import { Link } from "react-router-dom";
+import { getPosts } from "../api/post";
 
 class Home extends Component {
-  state = {
-    filter: "all"
-  };
-  // handle change filter
-  handleChangeFilter = e => {
-    this.setState({ filter: e.target.value });
-  };
-
-  // // handle completed checkbox
-  // handleToggleCompleted = value => (e, b) => {
-
-  //     const { todoActions } = this.props;
-  //     const item = {
-  //         ...value,
-  //         completed: !value.completed
-  //     }
-  //     todoActions.update(item);
-  // }
+  componentDidMount() {
+    getPosts().then(({ data }) => {
+      const { postActions } = this.props;
+      postActions.set(data);
+    });
+  }
 
   // handle edit todo
   handleEdit = value => e => {
@@ -52,67 +38,39 @@ class Home extends Component {
 
   // handle delete todo
   handleDelete = value => e => {
-    const { todoActions } = this.props;
-    todoActions.delete(value);
-  };
-
-  // filter todo items base on filter state
-  filterTodoItems = item => {
-    const { filter } = this.state;
-    if (filter === "completed") {
-      return item.completed;
-    } else if (filter === "active") {
-      return !item.completed;
-    } else {
-      return true;
-    }
+    const { postActions } = this.props;
+    postActions.delete(value);
   };
 
   //render component
   render() {
-    const { todo } = this.props;
-    const { filter } = this.state;
-    console.log(todo);
-
+    const { post } = this.props;
     return (
       <Grid item xs={12} sm={6}>
+        <IconButton>
+          <Link to="/create">
+            <AddIcon aria-label="create" />
+          </Link>
+        </IconButton>
         <Typography align="center" type="display3">
-          Todos
+          Posts
         </Typography>
         <Paper style={{ paddingLeft: 16, paddingRight: 16 }}>
-          {/* {todo.items.length > 0 &&
-                        <FormControl fullWidth>
-                            <Select
-                                value={filter}
-                                onChange={this.handleChangeFilter}
-                                name="filter"
-                                fullWidth
-                                margin="normal"
-
-                            >
-                                <MenuItem value='all'>All</MenuItem>
-                                <MenuItem value='completed'>Completed</MenuItem>
-                                <MenuItem value='active'>Active</MenuItem>
-                            </Select>
-
-                        </FormControl>
-                    } */}
-
           <List>
-            {todo.items.map(value => (
-              <ListItem
-                key={value.id}
-                dense
-                button
-
-                //className={classes.listItem}
-              >
+            {post.items.map(value => (
+              <ListItem key={value.id} dense button>
                 <ListItemText primary={value.title} />
                 <ListItemSecondaryAction>
-                  <IconButton aria-label="Edit" onClick={this.handleEdit(value)}>
+                  <IconButton
+                    aria-label="Edit"
+                    onClick={this.handleEdit(value)}
+                  >
                     <EditIcon />
                   </IconButton>
-                  <IconButton aria-label="Delete" onClick={this.handleDelete(value)}>
+                  <IconButton
+                    aria-label="Delete"
+                    onClick={this.handleDelete(value)}
+                  >
                     <DeleteIcon />
                   </IconButton>
                 </ListItemSecondaryAction>
@@ -125,7 +83,9 @@ class Home extends Component {
   }
 }
 
-const mapStateToProps = ({ todo }) => ({ todo });
-const mapDispatchToProps = dispatch => ({ todoActions: bindActionCreators(todoActions, dispatch) });
+const mapStateToProps = ({ post }) => ({ post });
+const mapDispatchToProps = dispatch => ({
+  postActions: bindActionCreators(postActions, dispatch)
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

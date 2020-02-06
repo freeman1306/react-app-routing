@@ -1,20 +1,16 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 
 // material-ui components
-import Grid from 'material-ui/Grid';
+import Grid from "material-ui/Grid";
 
 // react-router-dom
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch
-} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 // pages
-import Home from './pages/Home';
-import EditTodo from './pages/EditTodo';
-import NotFound from './pages/NotFound';
-import CreatePost from './pages/CreatePost';
+import Home from "./pages/Home";
+import NotFound from "./pages/NotFound";
+import CreatePost from "./pages/CreatePost";
+import EditPost from "./pages/EditPost";
 
 class App extends Component {
   render() {
@@ -24,13 +20,13 @@ class App extends Component {
           <Grid container spacing={16} justify="center">
             <Switch>
               <Route exact path="/" component={Home} />
-              <Route path="/edit/:id" component={EditTodo} />
+              <Route path="/edit/:id" component={EditPost} />
               <Route path="/create" component={CreatePost} />
               <Route component={NotFound} />
             </Switch>
           </Grid>
         </div>
-      </Router >
+      </Router>
     );
   }
 }
