@@ -1,10 +1,16 @@
 import React, {Component} from 'react'
 import './App.scss'
-import {Route, NavLink} from 'react-router-dom'
+import {Route, NavLink, Switch, Redirect} from 'react-router-dom'
 import About from './About/About'
 import Cars from './Cars/Cars'
+import CardDetail from './CardDetail/CardDetail'
 
 class App extends Component {
+
+  state = {
+  isLoggedIn: false
+}
+
   render() {
 
     return (
@@ -31,14 +37,26 @@ class App extends Component {
           </ul>
         </nav>
 
+<hr/> 
+        <div style={{textAlign: "center"}}>
+        <h3>Is Logged in {this.state.isLoggedIn ? "TRUE" : "FALSE"}</h3>  
+        <button onClick={() => this.setState({isLoggedIn: true})} >Login</button>
+
+      </div>
         <hr/>
 
-        {/*localhost:3000*/}
-        <Route path="/" exact render={() => <h1>Home Page</h1>} />
-        <Route path="/about" component={About}/>
-        <Route path="/cars" component={Cars}/>
       
+        <Switch>
+        <Route path="/" exact render={() => <h1>Home Page</h1>} />
+          
+{this.state.isLoggedIn ? <Route path="/about" component={About} /> : null}
 
+          <Route path="/cars/:name"  component={CardDetail}/>
+          <Route path="/cars" component={Cars} />
+          <Redirect  to={'/ '}/>
+        {/* <Route render={()=> <h1 style={{color: 'red', textAlign: 'center'}}>404 not found</h1>}/> */}
+
+        </Switch>
        
       </div>
     );
